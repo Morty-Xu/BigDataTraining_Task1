@@ -2,10 +2,10 @@ import requests
 import csv
 from bs4 import BeautifulSoup
 
-def checkValidity(ip):
-    proxies = "http://" + str(ip)
+def checkValidity(type, ip, port):
+    proxies = type + "://" + str(ip) + ':' + port
     try:
-        requests.get('https://www.baidu.com/', proxies={"http": proxies})
+        requests.get('https://www.baidu.com/', proxies={type: proxies})
     except:
         return False
     else:
@@ -27,9 +27,9 @@ ths = table_nn.find_all('th', limit=6)
 headers = []
 for n in ths:
     headers.append(n.string)
-    # print(n.string)
 # 去除 国家 元素
 headers.remove('国家')
+headers.append('有效性')
 
 # 提取国内高匿代理页面的表格值
 rows = []
@@ -43,9 +43,11 @@ for idx, tr in enumerate(table_nn.find_all('tr')):
                     row.append(n.find('a'))
                 else:
                     row.append(n.string)
-        if checkValidity(row[1]):
-            rows.append(row)
-
+        if checkValidity(row[4], row[0], row[1]):
+            row.append('有效')
+        else:
+            row.append('无效')
+        rows.append(row)
 csv_file = open('nn_csv.csv', 'a', newline='')
 csv_write = csv.writer(csv_file, dialect='excel')
 csv_write.writerow(headers)
