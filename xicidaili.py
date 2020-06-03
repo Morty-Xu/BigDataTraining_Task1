@@ -2,6 +2,15 @@ import requests
 import csv
 from bs4 import BeautifulSoup
 
+def checkValidity(ip):
+    proxies = "http://" + str(ip)
+    try:
+        requests.get('https://www.baidu.com/', proxies={"http": proxies})
+    except:
+        return False
+    else:
+        return True
+
 headers = {
     'Connection': 'keep-alive',
     # 模拟浏览器操作
@@ -34,7 +43,8 @@ for idx, tr in enumerate(table_nn.find_all('tr')):
                     row.append(n.find('a'))
                 else:
                     row.append(n.string)
-        rows.append(row)
+        if checkValidity(row[1]):
+            rows.append(row)
 
 csv_file = open('nn_csv.csv', 'a', newline='')
 csv_write = csv.writer(csv_file, dialect='excel')
